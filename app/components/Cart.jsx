@@ -1,6 +1,7 @@
 import {CartForm, Image, Money} from '@shopify/hydrogen';
 import {Link} from '@remix-run/react';
 import {useVariantUrl} from '~/lib/variants';
+import { useState } from 'react';
 
 /**
  * @param {CartMainProps}
@@ -178,10 +179,16 @@ function CartLineRemoveButton({lineIds}) {
  * @param {{line: CartLine}}
  */
 function CartLineQuantity({line}) {
+  const [quantity, setQuantity] = useState(line.quantity);
   if (!line || typeof line?.quantity === 'undefined') return null;
-  const {id: lineId, quantity} = line;
+  const {id: lineId} = line;
   const prevQuantity = Number(Math.max(0, quantity - 1).toFixed(0));
   const nextQuantity = Number((quantity + 1).toFixed(0));
+
+  const handleQuantityChange = (event) => {
+    const newQuantity = parseInt(event.target.value, 10);
+    setQuantity(newQuantity);
+  };
 
   return (
     <div className="cart-line-quantity">
@@ -194,6 +201,20 @@ function CartLineQuantity({line}) {
           value={prevQuantity}
         >
           <span>&#8722; </span>
+        </button>
+      </CartLineUpdateButton>
+      <CartLineUpdateButton lines={[{id: lineId, quantity: prevQuantity}]}>
+        <input
+          id={`${lineId}-quantity`}
+          name={`${lineId}-quantity`}
+          type="number"
+          value={quantity}
+          onChange={handleQuantityChange}
+          min={1}
+          max={100} // Adjust the maximum quantity allowed
+        />
+        <button type="submit" aria-label="Update Quantity">
+          Update
         </button>
       </CartLineUpdateButton>
       &nbsp;
